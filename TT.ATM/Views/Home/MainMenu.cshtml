@@ -1,0 +1,19 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "Menu";
+}
+
+<h2>Menu</h2>
+
+<div>
+    <div>
+        @Html.ActionLink("Current Balance", "CurrentBalance")
+    </div>
+    <div>
+        @Html.ActionLink("Previous Transactions", "PreviousTransactions")
+    </div>
+    <div>
+        @Html.ActionLink("Cash Withdrawal", "WithdrawCash")
+    </div>
+</div>

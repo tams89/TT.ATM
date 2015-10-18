@@ -1,8 +1,11 @@
-﻿namespace TT.ATM.Domain.Model
+﻿using System;
+
+namespace TT.ATM.Domain.Model
 {
     public class Transaction : EntityBase
     {
-        public int PinNumber { get; set; }
+        public DateTime TransactionTime { get; set; }
+
         public int Amount { get; set; }
     }
 }

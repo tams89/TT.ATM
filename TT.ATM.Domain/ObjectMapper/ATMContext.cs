@@ -3,17 +3,18 @@ using TT.ATM.Domain.Model;
 
 namespace TT.ATM.Domain.ObjectMapper
 {
-    public class ATM : DbContext
+    public class ATMContext : DbContext
     {
-        // Your context has been configured to use a 'ATM' connection string from your application's 
+        // Your context has been configured to use a 'ATMContext' connection string from your application's 
         // configuration file (App.config or Web.config). By default, this connection string targets the 
-        // 'TT.ATM.Domain.ATM' database on your LocalDb instance. 
+        // 'TT.ATMContext.Domain.ATMContext' database on your LocalDb instance. 
         // 
-        // If you wish to target a different database and/or database provider, modify the 'ATM' 
+        // If you wish to target a different database and/or database provider, modify the 'ATMContext' 
         // connection string in the application configuration file.
-        public ATM()
+        public ATMContext()
             : base("name=ATM.DataModel")
         {
+            Database.SetInitializer(new DropCreateDatabaseAlways<ATMContext>());
         }
 
         // Add a DbSet for each entity type that you want to include in your model. For more information 
@@ -21,6 +22,6 @@ namespace TT.ATM.Domain.ObjectMapper
 
         public virtual DbSet<Transaction> Transactions { get; set; }
 
-        public virtual DbSet<Authentication> Authentications { get; set; }
+        public virtual DbSet<Account> Accounts { get; set; }
     }
 }

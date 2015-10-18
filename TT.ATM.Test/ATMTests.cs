@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Security.Authentication;
+using NUnit.Framework;
+using TT.ATM.Domain.Service;
 
 namespace TT.ATM.Test
 {
@@ -42,34 +41,49 @@ namespace TT.ATM.Test
 
     public class AtmTests
     {
-        public void VerifiesPinOnCardEntry()
+        public void VerifiesPinOnCardEntry_ShouldFail()
         {
-            
+            var service = new AuthenticationService();
+            Assert.Throws<AuthenticationException>(() => service.VerifyPin("werfvwef"));
         }
 
-        public void ExceptionThrownOnNegativeVerfication()
+        public void VerifiesPinOnCardEntry_ShouldPass()
         {
-            
+            var service = new AuthenticationService();
+            Assert.DoesNotThrow(() => service.VerifyPin("4567"));
         }
 
         public void CanSeePastFiveTransactions_OnceAuthorised()
         {
-            
+            var service = new AccountService();
+            var data = service.GetBalance(numberOfTransactions: 5);
+            Assert.IsNotEmpty(data);
         }
 
         public void CanWithdraw_OnceAuthorised()
         {
-            
+            var service = new AccountService();
+            Assert.DoesNotThrow(() => service.WithdrawCash(amount: 500));
         }
 
         public void CannotWithdraw_MoreThan_OneThousandPerDay()
         {
-            
+            var service = new AccountService();
+            Assert.DoesNotThrow(() => service.WithdrawCash(amount: 500));
+            Assert.Throws<OverflowException>(() => service.WithdrawCash(amount: 500));
         }
 
         public void Cannot_CarryOut_MoreThanTenTransactionsPerDay()
         {
-            
+            var service = new AccountService();
+
+            for (int i = 0; i < 10; i++)
+            {
+                if (i < 9)
+                    Assert.DoesNotThrow(() => service.WithdrawCash(amount: 1));
+                else
+                    Assert.Throws<OverflowException>(() => service.WithdrawCash(amount: 1));
+            }
         }
     }
 }
