@@ -5,7 +5,7 @@ using TT.ATM.Domain.ObjectMapper;
 
 namespace TT.ATM.Domain.Migrations
 {
-    internal sealed class Configuration : DbMigrationsConfiguration<ATMContext>
+    public sealed class Configuration : DbMigrationsConfiguration<ATMContext>
     {
         public Configuration()
         {
@@ -14,6 +14,11 @@ namespace TT.ATM.Domain.Migrations
         }
 
         protected override void Seed(ATMContext context)
+        {
+            Add(context);
+        }
+
+        public static void Add(ATMContext context)
         {
             context.Accounts.AddOrUpdate(new Account
             {

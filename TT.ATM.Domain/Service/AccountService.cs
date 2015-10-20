@@ -51,13 +51,6 @@ namespace TT.ATM.Domain.Service
                          x.AccountNumber == accountNumber)
                 ;
 
-            var transactions = Context.Accounts
-                .Include(x => x.Transactions)
-                .Single(x => x.SortCode == sortCode &&
-                             x.AccountNumber == accountNumber)
-                .Transactions
-                ;
-
             // Check balance
             var hasFunds = account.CurrentBalance >= amount;
 
@@ -66,7 +59,7 @@ namespace TT.ATM.Domain.Service
                 throw new OverflowException("Insufficient funds.");
             }
 
-            var transactionsToday = transactions
+            var transactionsToday = account.Transactions
                 .Where(x => x.TransactionTime.Date == DateTime.UtcNow.Date)
                 .ToList();
 
@@ -80,7 +73,7 @@ namespace TT.ATM.Domain.Service
             // Check amount of transactions
 
             var amountWithdrawn = transactionsToday.Where(x => x.Amount < 0M).Sum(x => x.Amount) - Math.Abs(amount);
-            if (amountWithdrawn < -1000M)
+            if (Math.Abs(amount) > 1000 || amountWithdrawn <= -1000)
             {
                 throw new OverflowException("£1000 daily limit reached.");
             }

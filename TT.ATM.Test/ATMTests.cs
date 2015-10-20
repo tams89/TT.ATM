@@ -1,7 +1,13 @@
 ﻿using System;
+using System.Data.Entity;
 using System.Security.Authentication;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NUnit.Framework;
+using TT.ATM.Domain.Migrations;
+using TT.ATM.Domain.ObjectMapper;
 using TT.ATM.Domain.Service;
+using Assert = NUnit.Framework.Assert;
+using TestContext = NUnit.Framework.TestContext;
 
 namespace TT.ATM.Test
 {
@@ -39,33 +45,49 @@ namespace TT.ATM.Test
 
     */
 
+    [TestFixture]
     public class AtmTests
     {
-        public void VerifiesPinOnCardEntry_ShouldFail()
+        [SetUp]
+        public void Setup()
         {
-            var service = new AuthenticationService();
-            Assert.Throws<AuthenticationException>(() => service.VerifyPin("werfvwef", 123456, 12345678));
+            Database.SetInitializer(new MigrateDatabaseToLatestVersion<ATMContext, Configuration>());
+            Database.Delete("ATM.DataModel");
+
+            var context = new ATMContext();
+            context.Database.Initialize(true);
+            context.Dispose();
         }
 
-        public void VerifiesPinOnCardEntry_ShouldPass()
-        {
-            var service = new AuthenticationService();
-            Assert.DoesNotThrow(() => service.VerifyPin("4567", 123456, 12345678));
-        }
-
+        [Test]
         public void CanSeePastFiveTransactions_OnceAuthorised()
         {
             var service = new AccountService();
-            var data = service.GetBalance(123456, 12345678);
-            Assert.IsNotNull(data);
+
+            for (var i = 0; i < 5; i++)
+            {
+                service.WithdrawCash(1, 123456, 12345678);
+            }
+
+            var data = service.GetTransactions(123456, 12345678);
+            Assert.IsTrue(data.Count == 5);
         }
 
-        public void CanWithdraw_OnceAuthorised()
+        [Test]
+        public void Cannot_CarryOut_MoreThanTenTransactionsPerDay()
         {
             var service = new AccountService();
-            Assert.DoesNotThrow(() => service.WithdrawCash(500, 123456, 12345678));
+
+            for (var i = 0; i < 10; i++)
+            {
+                if (i < 9)
+                    Assert.DoesNotThrow(() => service.WithdrawCash(1, 123456, 12345678));
+                else
+                    Assert.Throws<OverflowException>(() => service.WithdrawCash(1, 123456, 12345678));
+            }
         }
 
+        [Test]
         public void CannotWithdraw_MoreThan_OneThousandPerDay()
         {
             var service = new AccountService();
@@ -73,17 +95,25 @@ namespace TT.ATM.Test
             Assert.Throws<OverflowException>(() => service.WithdrawCash(500, 123456, 12345678));
         }
 
-        public void Cannot_CarryOut_MoreThanTenTransactionsPerDay()
+        [Test]
+        public void CanWithdraw_OnceAuthorised()
         {
             var service = new AccountService();
+            Assert.DoesNotThrow(() => service.WithdrawCash(500, 123456, 12345678));
+        }
 
-            for (int i = 0; i < 10; i++)
-            {
-                if (i < 9)
-                    Assert.DoesNotThrow(() => service.WithdrawCash(1, 123456, 12345678));
-                else
-                    Assert.Throws<OverflowException>(() => service.WithdrawCash(1, 123456, 12345678));
-            }
+        [Test]
+        public void VerifiesPinOnCardEntry_ShouldFail()
+        {
+            var service = new AuthenticationService();
+            Assert.Throws<AuthenticationException>(() => service.VerifyPin("werfvwef", 123456, 12345678));
+        }
+
+        [Test]
+        public void VerifiesPinOnCardEntry_ShouldPass()
+        {
+            var service = new AuthenticationService();
+            Assert.DoesNotThrow(() => service.VerifyPin("0123", 123456, 12345678));
         }
     }
 }
