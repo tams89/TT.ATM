@@ -71,9 +71,8 @@ namespace TT.ATM.Domain.Service
             }
 
             // Check amount of transactions
-
-            var amountWithdrawn = transactionsToday.Where(x => x.Amount < 0M).Sum(x => x.Amount) - Math.Abs(amount);
-            if (Math.Abs(amount) > 1000 || amountWithdrawn <= -1000)
+            var amountWithdrawn = transactionsToday.Where(x => x.Amount < 0M).Sum(x => x.Amount);
+            if (!(amount == 1000 && amountWithdrawn == 0) && amountWithdrawn - Math.Abs(amount) <= -1000)
             {
                 throw new OverflowException("£1000 daily limit reached.");
             }

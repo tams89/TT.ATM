@@ -55,7 +55,6 @@ namespace TT.ATM.Test
             Database.Delete("ATM.DataModel");
 
             var context = new ATMContext();
-            context.Database.Initialize(true);
             context.Dispose();
         }
 
