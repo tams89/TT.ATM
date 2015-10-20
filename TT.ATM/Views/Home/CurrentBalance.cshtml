@@ -1,7 +1,16 @@
-﻿@model dynamic
+﻿@model Decimal
 
 @{
     ViewBag.Title = "Current Balance";
 }
 
 <h2>Balance</h2>
+
+<div>
+    @Html.Label("Current Balance")
+    <span>
+        <strong style="color: red">
+            £@Model
+        </strong>
+    </span>
+</div>

@@ -1,4 +1,5 @@
 using System.Data.Entity;
+using TT.ATM.Domain.Migrations;
 using TT.ATM.Domain.Model;
 
 namespace TT.ATM.Domain.ObjectMapper
@@ -14,7 +15,7 @@ namespace TT.ATM.Domain.ObjectMapper
         public ATMContext()
             : base("name=ATM.DataModel")
         {
-            Database.SetInitializer(new DropCreateDatabaseAlways<ATMContext>());
+            Database.SetInitializer(new MigrateDatabaseToLatestVersion<ATMContext, Configuration>());
         }
 
         // Add a DbSet for each entity type that you want to include in your model. For more information 

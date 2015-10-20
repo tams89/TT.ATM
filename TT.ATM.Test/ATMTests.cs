@@ -44,33 +44,33 @@ namespace TT.ATM.Test
         public void VerifiesPinOnCardEntry_ShouldFail()
         {
             var service = new AuthenticationService();
-            Assert.Throws<AuthenticationException>(() => service.VerifyPin("werfvwef"));
+            Assert.Throws<AuthenticationException>(() => service.VerifyPin("werfvwef", 123456, 12345678));
         }
 
         public void VerifiesPinOnCardEntry_ShouldPass()
         {
             var service = new AuthenticationService();
-            Assert.DoesNotThrow(() => service.VerifyPin("4567"));
+            Assert.DoesNotThrow(() => service.VerifyPin("4567", 123456, 12345678));
         }
 
         public void CanSeePastFiveTransactions_OnceAuthorised()
         {
             var service = new AccountService();
-            var data = service.GetBalance(numberOfTransactions: 5);
-            Assert.IsNotEmpty(data);
+            var data = service.GetBalance(123456, 12345678);
+            Assert.IsNotNull(data);
         }
 
         public void CanWithdraw_OnceAuthorised()
         {
             var service = new AccountService();
-            Assert.DoesNotThrow(() => service.WithdrawCash(amount: 500));
+            Assert.DoesNotThrow(() => service.WithdrawCash(500, 123456, 12345678));
         }
 
         public void CannotWithdraw_MoreThan_OneThousandPerDay()
         {
             var service = new AccountService();
-            Assert.DoesNotThrow(() => service.WithdrawCash(amount: 500));
-            Assert.Throws<OverflowException>(() => service.WithdrawCash(amount: 500));
+            Assert.DoesNotThrow(() => service.WithdrawCash(500, 123456, 12345678));
+            Assert.Throws<OverflowException>(() => service.WithdrawCash(500, 123456, 12345678));
         }
 
         public void Cannot_CarryOut_MoreThanTenTransactionsPerDay()
@@ -80,9 +80,9 @@ namespace TT.ATM.Test
             for (int i = 0; i < 10; i++)
             {
                 if (i < 9)
-                    Assert.DoesNotThrow(() => service.WithdrawCash(amount: 1));
+                    Assert.DoesNotThrow(() => service.WithdrawCash(1, 123456, 12345678));
                 else
-                    Assert.Throws<OverflowException>(() => service.WithdrawCash(amount: 1));
+                    Assert.Throws<OverflowException>(() => service.WithdrawCash(1, 123456, 12345678));
             }
         }
     }

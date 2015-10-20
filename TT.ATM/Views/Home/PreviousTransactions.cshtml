@@ -1,7 +1,13 @@
-﻿@model dynamic
+﻿@model IEnumerable<dynamic>
 
 @{
     ViewBag.Title = "Transactions";
 }
 
 <h2>Transactions</h2>
+
+
+<div>
+    @{var grid = new WebGrid(Model);}
+    @(grid.GetHtml())
+</div>

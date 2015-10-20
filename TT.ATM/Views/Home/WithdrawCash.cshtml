@@ -1,7 +1,16 @@
-﻿@model dynamic
-
-@{
+﻿@{
     ViewBag.Title = "Cash";
 }
 
 <h2>Cash</h2>
+
+<div>
+    @using (Html.BeginForm("WithdrawCash", "Home"))
+    {
+        @Html.Label("How much would you like to withdraw?") 
+        @Html.TextBox("Amount")
+        <input type="submit" title="Ok" />
+    }
+
+    
+</div>

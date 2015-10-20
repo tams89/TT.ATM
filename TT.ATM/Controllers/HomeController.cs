@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Web.Mvc;
 using TT.ATM.Domain.Service;
 
@@ -7,10 +8,12 @@ namespace TT.ATM.Controllers
     public class HomeController : Controller
     {
         private readonly IAuthenticationService _authenticationService;
+        private readonly IAccountService _accountService;
 
-        public HomeController(IAuthenticationService authenticationService)
+        public HomeController()
         {
-            _authenticationService = authenticationService;
+            _authenticationService = new AuthenticationService();
+            _accountService = new AccountService();
         }
 
         public ActionResult Index()
@@ -23,11 +26,13 @@ namespace TT.ATM.Controllers
             return View("MainMenu");
         }
 
-        public ActionResult VerifyPin(string inputValue)
+        // TODO remove hardcoded should be supplied from card details. 
+        [HttpPost]
+        public ActionResult VerifyPin(string inputValue, int sortCode = 123456, int accountNumber = 12345678)
         {
             try
             {
-                _authenticationService.VerifyPin(inputValue);
+                _authenticationService.VerifyPin(inputValue, sortCode, accountNumber);
                 return View("MainMenu");
             }
             catch (Exception ex)
@@ -38,25 +43,50 @@ namespace TT.ATM.Controllers
             return View("Index");
         }
 
-       
 
-        public ActionResult CurrentBalance()
+        // TODO remove hardcoded should be supplied from card details. 
+        public ActionResult CurrentBalance(int sortCode = 123456, int accountNumber = 12345678)
         {
-            // TODO get balance info from DB.
-            return View();
+            var balance = _accountService.GetBalance(sortCode, accountNumber);
+            return View(balance);
 
         }
 
-        public ActionResult PreviousTransactions()
+        // TODO remove hardcoded should be supplied from card details. 
+        public ActionResult PreviousTransactions(int sortCode = 123456, int accountNumber = 12345678)
         {
-            // TODO get balance info from DB.
-            return View();
+            var transactions = _accountService.GetTransactions(sortCode, accountNumber)
+                .Select(x=> new { Date = x.TransactionTime, Amount = x.Amount });
+
+            return View(transactions);
         }
 
+        [HttpGet]
         public ActionResult WithdrawCash()
         {
-            // TODO get balance info from DB.
             return View();
+        }
+
+        // TODO remove hardcoded should be supplied from card details. 
+        [HttpPost]
+        public ActionResult WithdrawCash(int amount, int sortCode = 123456, int accountNumber = 12345678)
+        {
+            try
+            {
+                _accountService.WithdrawCash(amount, sortCode, accountNumber);
+            }
+            // If any issue then back out to pin entry screen.
+            catch (OverflowException ex)
+            {
+                ModelState.AddModelError("Overflow", ex.Message);
+                return View("Index");
+            }
+            catch (Exception)
+            {
+                return RedirectToAction("Index");
+            }
+
+            return RedirectToAction("PinVerified");
         }
     }
 }

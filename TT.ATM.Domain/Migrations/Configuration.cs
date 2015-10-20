@@ -1,4 +1,6 @@
+using System;
 using System.Data.Entity.Migrations;
+using TT.ATM.Domain.Model;
 using TT.ATM.Domain.ObjectMapper;
 
 namespace TT.ATM.Domain.Migrations
@@ -8,22 +10,27 @@ namespace TT.ATM.Domain.Migrations
         public Configuration()
         {
             AutomaticMigrationsEnabled = true;
+            AutomaticMigrationDataLossAllowed = true;
         }
 
         protected override void Seed(ATMContext context)
         {
-            //  This method will be called after migrating to the latest version.
+            context.Accounts.AddOrUpdate(new Account
+            {
+                Id = 1,
+                AccountHolder = "Fred",
+                AccountNumber = 12345678,
+                SortCode = 123456,
+                Pin = "0123"
+            });
 
-            //  You can use the DbSet<T>.AddOrUpdate() helper extension method 
-            //  to avoid creating duplicate seed data. E.g.
-            //
-            //    context.People.AddOrUpdate(
-            //      p => p.FullName,
-            //      new Person { FullName = "Andrew Peters" },
-            //      new Person { FullName = "Brice Lambson" },
-            //      new Person { FullName = "Rowan Miller" }
-            //    );
-            //
+            context.Transactions.AddOrUpdate(new Transaction
+            {
+                Id = 1,
+                AccountId = 1,
+                Amount = 2000,
+                TransactionTime = DateTime.UtcNow
+            });
         }
     }
 }
